@@ -1,0 +1,780 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="ShipWorksModule"
+    elementFormDefault="qualified"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+  <xs:element type="ShipWorks" name="ShipWorks"/>
+
+  <xs:complexType name="ShipWorks">
+  <xs:annotation>
+    <xs:documentation>Root of all integration responses.</xs:documentation>
+  </xs:annotation>
+    
+    <xs:sequence>
+      <xs:element name="Parameters" minOccurs="0" >
+        <xs:annotation>
+          <xs:documentation>Container for echoing received parameters back to ShipWorks.  Useful for support staff.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:choice>
+        <xs:element name="Module" type="Module">
+          <xs:annotation>
+            <xs:documentation>Response element for GetModule call.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Store" type="Store">
+          <xs:annotation>
+            <xs:documentation>Response element for GetStore call.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="StatusCodes">
+          <xs:annotation>
+            <xs:documentation>Response element for GetStatusCodes call.</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="StatusCode" minOccurs="0" maxOccurs="unbounded" type="StatusCode"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="OrderCount" type="xs:int">
+          <xs:annotation>
+            <xs:documentation>Response element for GetCount call.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Orders">
+          <xs:annotation>
+            <xs:documentation>Response element for GetOrders call.</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Order" minOccurs="0" maxOccurs="unbounded" type="Order" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="UpdateSuccess">
+          <xs:annotation>
+            <xs:documentation>Response element for a successful UpdateStatus or UpdateShipment call.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Error">
+          <xs:annotation>
+            <xs:documentation>Response element for any fatal errors that occured in the processing of any requests.</xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Code" type="xs:string" >
+                <xs:annotation>
+                  <xs:documentation>The error code will appear in logs and has no meaning to ShipWorks.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="Description" type="xs:string" >
+                <xs:annotation>
+                  <xs:documentation>Error message that will be presented to the user when encountered by ShipWorks.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Debug" type="Debug" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Container for passing any debugging or support information back to ShipWorks.  Nothing contained here will be used by ShipWorks.  Responses will be logged by ShipWorks, so this should not contain sensitive information.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+    
+    <xs:attribute name="moduleVersion" type="Version" use="required">
+      <xs:annotation>
+        <xs:documentation>The version of this integration module.  Must be at least 3.0.0 for ShipWorks 3, or an error will be raised.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="schemaVersion" type="Version" use="required">
+      <xs:annotation>
+        <xs:documentation>ShipWorks Schema version to validate the response to.   Currently 1.0.0.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="Module">
+    <xs:annotation>
+      <xs:documentation>Descriptive information about the module and its developer, including the module's capabilities.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Platform" type="RequiredString">
+          <xs:annotation>
+            <xs:documentation>The ecommerce system this module allows ShipWorks to integrate with.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="Developer" type="RequiredString">
+          <xs:annotation>
+            <xs:documentation>The company or individual name of the integration developer.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="Capabilities">
+          <xs:annotation>
+            <xs:documentation>Declares the functionality available in the integration.  Options specified here setup expectations in ShipWorks such as the availability of certain data elements, or features as a whole.</xs:documentation>
+          </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="DownloadStrategy">
+              <xs:annotation>
+                <xs:documentation>Dictates how ShipWorks will retrieve orders from your system.
+                
+                ByModifiedTime: ShipWorks will request orders placed or modified since the most recent LastModified order it has downloaded in the past.
+                
+                ByOrderNumber: ShipWorks will request orders having order numbers larger than the highest order number it has downloaded in the past.
+                
+                Consult the Store Integration Guide for more information on the implications of this setting.
+                </xs:documentation>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="ByModifiedTime">
+                    <xs:annotation>
+                      <xs:documentation>ShipWorks will request orders placed or modified since the most recent LastModified order it has downloaded in the past.</xs:documentation>
+                    </xs:annotation>
+                  </xs:enumeration>
+                  <xs:enumeration value="ByOrderNumber">
+                    <xs:annotation>
+                      <xs:documentation>ShipWorks will request orders having order numbers larger than the highest order number it has downloaded in the past.</xs:documentation>
+                    </xs:annotation>
+                  </xs:enumeration>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+            <xs:element name="OnlineCustomerID">
+              <xs:annotation>
+                <xs:documentation>If your system assigns unique identifier to customers, ShipWorks can use this identifier to match up orders to customers in the ShipWorks database.  Customer linking is done by email address otherwise.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:attribute name="supported" type="xs:boolean" use="required">
+                  <xs:annotation>
+                    <xs:documentation>Specifies whether or not CustomerID will be provided in GetOrder respones.</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="dataType" type="VariantDataType" use="optional">
+                  <xs:annotation>
+                    <xs:documentation>Tells ShipWorks what type of data to expect in the CustomerID element of the GetOrder respones.</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="OnlineStatus">
+              <xs:annotation>
+                <xs:documentation>ShipWorks can do more than just display order statuses.  Depending on the configuration specified here, ShipWorks can allow users to change order status with or without comments.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:attribute name="supported" type="xs:boolean" use="required">
+                  <xs:annotation>
+                    <xs:documentation>Specifies whether or not order statuses should be downloaded and displayed.</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="supportsComments" type="xs:boolean" use="optional">
+                  <xs:annotation>
+                    <xs:documentation>Specifies if ShipWorks users can provide comments when doing order status updates.  Ignored if downloadOnly is true.</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="downloadOnly" type="xs:boolean" use="optional">
+                  <xs:annotation>
+                    <xs:documentation>Specifies if order statuses are read-only, not allowing the user to make changes to the online status.  If this is true, no UpdateStatus calls will ever be made by ShipWorks.</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="dataType" type="VariantDataType" use="optional">
+                  <xs:annotation>
+                    <xs:documentation>Tells ShipWorks what type of data to expect in the StatusCode element of the GetOrder response.</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="OnlineShipmentUpdate">
+              <xs:annotation>
+                <xs:documentation>ShipWorks can send shipment tracking information to the integration, either automatically when orders are shipped or manually by the user.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:attribute name="supported" type="xs:boolean" use="required">
+                  <xs:annotation>
+                    <xs:documentation>Dictates whether or not shipment details should be sent to the integration.  If this is true, no UpdateShipment calls will ever be made by ShipWorks.</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Communications" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>This is used to configure any communications-level settings ShipWorks needs in order to fully communicate with the module.</xs:documentation>
+          </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Http" minOccurs="0">
+              <xs:complexType>
+                <xs:attribute name="expect100Continue" type="xs:boolean" use="optional" default="true">
+                  <xs:annotation>
+                    <xs:documentation>By default ShipWorks will send the expect:100Continue HTTP Header on its POST requests.  If this causes issues for your system, set this to false and it will no longer be sent.</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Store">
+    <xs:annotation>
+      <xs:documentation>Demographic information about the user's online store.  This information is made available to the ShipWorks user during shipping and invoicing.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>The name of the oniline store.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="CompanyOrOwner" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>The individual or company owner's name.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="Email" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Typically the support/customer service email address for the store.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="Street1" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Physical street address.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="Street2" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Physical street address.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="Street3" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Physical street address.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="City" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>City where the store is located.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="State" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>State where the store is located.  State code or full name.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="PostalCode" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Postal code where the store is located.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="Country" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Country where the store is located. Country code or full name.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="Phone" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>Typically the store's customer service phone number.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="Website" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>The online store's customer-facing URL.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StatusCode">
+    <xs:annotation>
+      <xs:documentation>Container element for a single status code.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Code" type="RequiredString">
+        <xs:annotation>
+          <xs:documentation>The internal representation of your system's status code.  For example 1001, SHIP, CANCEL2</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Name" type="RequiredString">
+        <xs:annotation>
+          <xs:documentation>The display name for the status code.  This value is presented as the status code in ShipWorks and should be identical to how it is displayed in your system to avoid confusion.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Order">
+    <xs:annotation>
+      <xs:documentation>A single order to be imported into ShipWorks.</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="OrderNumber" type="xs:long">
+        <xs:annotation>
+          <xs:documentation>The numeric, unique order number identifying this order to ShipWorks.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderDate" type="xs:dateTime">
+          <xs:annotation>
+            <xs:documentation>The date and time the order was originally placed. The time is in UTC.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="LastModified" type="xs:dateTime" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The date and time the order was last modified in the online store, by the end customer or staff.  The time is in UTC.  Required if DownloadStrategy is defined as ByModifiedTime.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShippingMethod" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Customer-requested shipping method for the order.  This is displayed in ShipWorks and should be human-readable.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StatusCode" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The status code for the current status of the order.  Required when OnlineStatus is designated as supported.  See complexType Module.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CustomerID" type="xs:string" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>A value uniquely identifying the purchasing customer to ShipWorks.  Required when OnlineCustomerID is designated as supported.  See complexType Module.</xs:documentation>
+          </xs:annotation>
+      </xs:element>
+      <xs:element name="Notes" minOccurs="0" >
+        <xs:annotation>
+          <xs:documentation>A collection of any number of notes to attach to the order in ShipWorks.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Note" type="Note" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ShippingAddress" type="Address">
+        <xs:annotation>
+          <xs:documentation>The shipping address specified on the order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillingAddress" type="Address">
+        <xs:annotation>
+          <xs:documentation>The billing address specified on the order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Payment" minOccurs="0" >
+        <xs:annotation>
+          <xs:documentation>Container for payment information provided by the customer.  This information is displayed on the Payments panel in the ShipWorks user interface.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:choice>
+            <xs:sequence>
+              <xs:element name="Method" type="xs:string">
+                <xs:annotation>
+                  <xs:documentation>Payment method displayed in ShipWorks.</xs:documentation>
+                </xs:annotation>
+              </xs:element>
+              <xs:element name="CreditCard" minOccurs="0">
+                <xs:annotation>
+                  <xs:documentation>If the Method of payment is some type of credit card, the cc information can be supplied here.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Type" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>The type of credit card, displayed to the user.</xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="Owner" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>The name listed as the owner of the card.</xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="Number" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>Credit card number provided by the customer.  If your integration allows unsecured connections, this value should not be provided in whole to ShipWorks.</xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="Expires" type="xs:string">
+                      <xs:annotation>
+                        <xs:documentation>Card expiration date.</xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                    <xs:element name="CCV" type="xs:string" minOccurs="0">
+                      <xs:annotation>
+                        <xs:documentation>Card verification number, on the back of the card.  Once again, this value should not be provided to ShipWorks if communication is detected to be unsecure.</xs:documentation>
+                      </xs:annotation>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:element name="Detail" minOccurs="0" maxOccurs="unbounded" >
+              <xs:annotation>
+                <xs:documentation>Used to specify other payment details, gift certificates or reward cards for example.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:attribute name="name" type="xs:string">
+                  <xs:annotation>
+                    <xs:documentation>The name of the payment detail item displayed in ShipWorks.  Items are displayed as "Name: Value".  For example "Discount Code: ABCDEFG"</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="value" type="xs:string">
+                  <xs:annotation>
+                    <xs:documentation>The value of the payment detail item displayed in ShipWorks.  Items are displayed as "Name: Value".  For example "Discount Code: ABCDEFG"</xs:documentation>
+                  </xs:annotation>
+                </xs:attribute>
+              </xs:complexType>
+            </xs:element>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Items">
+        <xs:annotation>
+          <xs:documentation>The purchased items on the order; line items.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Item" minOccurs="0" maxOccurs="unbounded" type="Item"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Totals">
+        <xs:annotation>
+          <xs:documentation>Charges and fees applied to the order that impact its total cost.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Total" minOccurs="0" maxOccurs="unbounded">
+              <xs:annotation>
+                <xs:documentation>A single charge, fee, or discount that impacts the order total.</xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:simpleContent>
+                  <xs:extension base="xs:decimal">
+                    <xs:annotation>
+                      <xs:documentation>The monetary value of this charge.  Do not use negative numbers to apply discounts.  Rather, use the impact attribute to specify how a value impacts the total.</xs:documentation>
+                    </xs:annotation>
+                    <xs:attribute name="id" type="xs:int" use="optional">
+                      <xs:annotation>
+                        <xs:documentation>An identifier for the charge in your system, if desired.</xs:documentation>
+                      </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="name" type="xs:string" use="optional">
+                      <xs:annotation>
+                        <xs:documentation>Display text for the fee or charge. Ex. Shipping and Handling</xs:documentation>
+                      </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="class" type="xs:string" use="optional">
+                      <xs:annotation>
+                        <xs:documentation>A code for the charge that can be keyed on in Templates, if desired.  Ex. HANDLING </xs:documentation>
+                      </xs:annotation>
+                    </xs:attribute>
+                    <xs:attribute name="impact" type="xs:string" use="optional" default="add">
+                      <xs:annotation>
+                        <xs:documentation>Specifies how the value of this charge impacts the order total.  Possible values are: add, subtract, and none.</xs:documentation>
+                      </xs:annotation>
+                    </xs:attribute>
+                  </xs:extension>
+                </xs:simpleContent>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Debug" type="Debug" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Debugging and support data not processed by ShipWorks, but recorded in logs.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="Item">
+    <xs:annotation>
+      <xs:documentation>A distinct purchased item on an order.  Also referred to as a Line Item or Order Item.</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="ItemID" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Identifier of the item in your system, if desired.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProductID" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Value that uniquely identifies the item purchased.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Code" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Another value to identify the purchased item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SKU" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Stock Keeping Unit for the item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Name" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Display text for the item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Quantity" type="xs:integer">
+        <xs:annotation>
+          <xs:documentation>Number of these items purchased.  This value is multiplied by UnitPrice and Weight when calculating total order cost and weight.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UnitPrice" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>The price of a single one of these items.  This value is multiplied by Quantity when total order value is calculated.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UnitCost" type="xs:decimal" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The cost of a single one of these items.  This value is multiplied by Quantity when total order cost is calculated.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Image" type="xs:anyURI" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The URL to the full product image.  This will allow an image of the item to be placed on invoices and reports.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ThumbnailImage" type="xs:anyURI" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The URL to the product thumbnail image.  This will allow the thumbnail image of the item to be placed on invoices and reports.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Weight" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>The weight of a single one of these items.  This value is multiplied by Quantity when the total order weight is calculated.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Attributes" minOccurs="0" >
+        <xs:annotation>
+          <xs:documentation>Attributes are for product variations or options selected by the customer.  Ex. size, color, edition.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Attribute" minOccurs="0" maxOccurs="unbounded" type="ItemAttribute"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Debug" minOccurs="0"  type="Debug">
+        <xs:annotation>
+          <xs:documentation>Debugging and support data not processed by ShipWorks, but recorded in logs.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all> 
+  </xs:complexType>
+
+  <xs:complexType name="ItemAttribute">
+    <xs:annotation>
+      <xs:documentation>Declares a chosen product option or variation.</xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="AttributeID" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Identifier of the option or variation in your system, if desired.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Name" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Display text for the option or variation type.  Ex. Size, Color, Edition</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Value" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>The customer-chosen value for the option or variation.  Ex. Small, Red, Special</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Price" type="xs:decimal" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The charge for the option or variation.  This value impacts the calculated order total in ShipWorks.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Debug" minOccurs="0"  type="Debug">
+        <xs:annotation>
+          <xs:documentation>Debugging and support data not processed by ShipWorks, but recorded in logs.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="Note">
+    <xs:annotation>
+      <xs:documentation>A textual note attached to orders.</xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="date" type="xs:dateTime" use="optional">
+          <xs:annotation>
+            <xs:documentation>The date the note or comment was applied.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="public" type="xs:boolean" use="optional" default="false">
+          <xs:annotation>
+            <xs:documentation>Public notes are printed on invoices, for customer comments and the like.  Private notes are those entered and viewable by store staff, as they are considered internal in nature.</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="Address">
+    <xs:annotation>
+      <xs:documentation>Container for address information.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:group ref="Name">
+        <xs:annotation>
+          <xs:documentation>The addressee's name.</xs:documentation>
+        </xs:annotation>
+      </xs:group>
+      <xs:element name="Company" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The addressee's company name.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Street1" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Street address.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Street2" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Street address.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Street3" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Street address.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="City" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The addressee's city.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="State" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The addressee's state code.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PostalCode" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The addressee's postal code.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Country" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The addressee's country code.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Residential" type="xs:boolean" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Indicator for this being a residential address.  This is used to configure how shipments are processed and rated.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Phone" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Teh addressee's phone number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Fax" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The addressee's fax number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Email" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The addressee's email address.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Website" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>The addressee's website URL.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:group name="PersonName">
+    <xs:annotation>
+      <xs:documentation>A person's name broken out into its first, middle, and last name.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="FirstName" type="xs:string"/>
+      <xs:element name="MiddleName" type="xs:string" minOccurs="0"/>
+      <xs:element name="LastName" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:group name="Name">
+    <xs:annotation>
+      <xs:documentation>A person's name.</xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:element name="FullName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>When present, ShipWorks will parse the name into its first, middle, and last names.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:group ref="PersonName"/>
+    </xs:choice>
+  </xs:group>
+  
+  <xs:complexType name="Debug">
+    <xs:sequence>
+      <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="Version">
+    <xs:annotation>
+      <xs:documentation>Describes a version string in the format x.y.z</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d+(\.\d+){1,3}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Impact">
+    <xs:annotation>
+      <xs:documentation>Defines how an item impacts the total.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="add"/>
+      <xs:enumeration value="subtract"/>
+      <xs:enumeration value="none"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RequiredString">
+    <xs:annotation>
+      <xs:documentation>A non-empty string.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:minLength value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="VariantDataType">
+    <xs:annotation>
+      <xs:documentation>Data types allowed for a the variable pieces of data such as StatusCode and CustomerID.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="numeric"/>
+      <xs:enumeration value="text"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+</xs:schema>

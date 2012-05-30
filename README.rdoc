@@ -1,0 +1,6 @@
+= Spree ShipWorks
+
+This project implements the ShipWorks 3.0 API endpoint as defined in 
+"ShipWorks 3.0: Store Integration Guide: version 1.0".
+
+This project rocks and uses MIT-LICENSE.
