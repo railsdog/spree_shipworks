@@ -22,13 +22,14 @@ module SpreeShipworks
         raise ArgumentError.new("the maxcount variable is invalid")
       end
 
-      batch           = 0
-      broken          = false
-      counter         = 0
+      batch = 0
+      broken = false
+      counter = 0
       last_updated_at = nil
-      relation        = Spree::Order.where('updated_at > ?', date).
-                                     order('updated_at asc').
-                                     limit(batch_size)
+      relation = Spree::Order.
+        where('updated_at > ?', date).
+        order('updated_at asc').
+        limit(batch_size)
 
       Spree::Order.uncached do
         orders = relation.offset(batch_size * batch).all
