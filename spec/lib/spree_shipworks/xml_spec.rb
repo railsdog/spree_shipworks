@@ -192,6 +192,22 @@ module SpreeShipworks
       it 'should have a Weight node' do
         xml.xpath('/Item/Weight').text.should == '30.0'
       end
+
+      context 'missing weight' do
+        let(:variant) {
+          v = Spree::Variant.new(
+            :sku => '1234',
+            :price => 10,
+            :cost_price => 20
+          )
+          v.id = 3
+          v
+        }
+
+        it 'should supply a zero weight' do
+          xml.xpath('/Item/Weight').text.should == '0.0'
+        end
+      end
     end
 
     context 'Order' do

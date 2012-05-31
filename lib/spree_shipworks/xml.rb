@@ -63,7 +63,7 @@ module SpreeShipworks
           i.element 'Quantity',  self.quantity                             if self.quantity.present?
           i.element 'UnitPrice', format("%01.2f", self.variant.price)      if self.variant.present?
           i.element 'UnitCost',  format("%01.2f", self.variant.cost_price) if self.variant.present?
-          i.element 'Weight',    self.variant.weight                       if self.variant.present?
+          i.element 'Weight',    self.variant.weight || 0.0                if self.variant.present?
         end
       end
     end # LineItem
