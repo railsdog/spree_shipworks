@@ -28,7 +28,8 @@ module SpreeShipworks
 
         let(:date) { DateTime.parse(date_string) }
         let(:maxcount) { maxcount_string.to_i }
-        let(:where_scope) { mock('relation_scope') }
+        let(:where_date_scope) { mock('where_date_scope') }
+        let(:where_state_scope) { mock('where_state_scope') }
         let(:relation_scope) { mock('relation_scope') }
         let(:limit_scope) { mock('limit_scope') }
         let(:offset_scope) { mock('offset_scope') }
@@ -44,9 +45,13 @@ module SpreeShipworks
         before(:each) do
           Spree::Order.should_receive(:where).
             with('updated_at > ?', date).
-            and_return(where_scope)
+            and_return(where_date_scope)
 
-          where_scope.should_receive(:order).
+          where_date_scope.should_receive(:where).
+            with(:state => SpreeShipworks::Orders::VALID_STATES).
+            and_return(where_state_scope)
+
+          where_state_scope.should_receive(:order).
             with('updated_at asc').
             and_return(relation_scope)
 

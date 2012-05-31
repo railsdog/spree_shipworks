@@ -2,6 +2,8 @@ require 'spree_shipworks/xml'
 
 module SpreeShipworks
   class Orders
+    VALID_STATES = %w(complete canceled resumed awaiting_return returned)
+
     # AR::Base#find_each and AR::Base#find_in_batches do not allow support ordering or limiting
     # This method mimicks the behavior of #find_in_batches, but is specific to the needs of the
     # ShipWorks API since it will break after the maxcount has been reached AND the updated_at
@@ -28,6 +30,7 @@ module SpreeShipworks
       last_updated_at = nil
       relation = Spree::Order.
         where('updated_at > ?', date).
+        where(:state => VALID_STATES).
         order('updated_at asc').
         limit(batch_size)
 
