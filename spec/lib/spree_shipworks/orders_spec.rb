@@ -26,22 +26,20 @@ module SpreeShipworks
           result
         end
 
-        let(:date)            { DateTime.parse(date_string) }
-        let(:maxcount)        { maxcount_string.to_i }
-        let(:where_scope)     { mock('relation_scope') }
-        let(:relation_scope)  { mock('relation_scope') }
-        let(:limit_scope)     { mock('limit_scope') }
-        let(:offset_scope)    { mock('offset_scope') }
-        let(:orders)          {
-                                [
-                                  order(date.to_s),
-                                  order(date.to_s),
-                                  order(date.next_day.to_s),
-                                  order(date.next_day.to_s),
-                                  order(date.next_day.next_day.to_s),
-                                  order(date.next_day.next_day.to_s)
-                                ]
-                              }
+        let(:date) { DateTime.parse(date_string) }
+        let(:maxcount) { maxcount_string.to_i }
+        let(:where_scope) { mock('relation_scope') }
+        let(:relation_scope) { mock('relation_scope') }
+        let(:limit_scope) { mock('limit_scope') }
+        let(:offset_scope) { mock('offset_scope') }
+        let(:orders) {[
+          order(date.to_s),
+          order(date.to_s),
+          order(date.next_day.to_s),
+          order(date.next_day.to_s),
+          order(date.next_day.next_day.to_s),
+          order(date.next_day.next_day.to_s)
+        ]}
 
         before(:each) do
           Spree::Order.should_receive(:where).
