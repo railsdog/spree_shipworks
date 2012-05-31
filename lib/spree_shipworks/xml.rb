@@ -39,16 +39,16 @@ module SpreeShipworks
     module Creditcard
       def to_shipworks_xml(context)
         context.element 'CreditCard' do |cc|
-          cc.element 'Type',    self.cc_type            if self.cc_type.present?
-          cc.element 'Owner',   self.name               if self.name.present?
-          cc.element 'Number',  self.display_number     if self.display_number.present?
-          cc.element 'Expires', self.expires            if self.expires.present?
+          cc.element 'Type',    self.cc_type || 'unknown'
+          cc.element 'Owner',   self.name || ''
+          cc.element 'Number',  self.display_number || ''
+          cc.element 'Expires', self.expires || ''
           cc.element 'CCV',     self.verification_value if self.verification_value?
         end
       end
 
       def expires
-        "#{month}/#{year}"
+        "#{month}/#{year}" if month.present? || year.present?
       end
     end # CreditCard
 

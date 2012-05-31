@@ -120,6 +120,35 @@ module SpreeShipworks
       it 'should have a CCV node' do
         xml.xpath('/CreditCard/CCV').text.should == '111'
       end
+
+      context 'when data is missing' do
+        let(:creditcard) {
+          Spree::Creditcard.new.extend(SpreeShipworks::Xml::Creditcard)
+        }
+
+        it 'should still have a Type node' do
+          xml.xpath('/CreditCard/Type').text.should == 'unknown'
+        end
+
+        it 'should still have an Owner node' do
+          xml.xpath('/CreditCard/Owner').should be_present
+          xml.xpath('/CreditCard/Owner').text.strip.should == ''
+        end
+
+        it 'should still have a Number node' do
+          xml.xpath('/CreditCard/Number').should be_present
+          xml.xpath('/CreditCard/Number').text.should == 'XXXX-XXXX-XXXX-'
+        end
+
+        it 'should still have an Expires node' do
+          xml.xpath('/CreditCard/Expires').should be_present
+          xml.xpath('/CreditCard/Expires').text.should == ''
+        end
+
+        it 'should not have a CCV node' do
+          xml.xpath('/CreditCard/CCV').should_not be_present
+        end
+      end
     end
 
     context 'Item' do
