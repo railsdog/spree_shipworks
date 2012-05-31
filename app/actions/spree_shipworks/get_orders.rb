@@ -8,7 +8,7 @@ module SpreeShipworks
       response do |r|
         r.element 'Orders' do |r|
           ::SpreeShipworks::Orders.since(params['start'], params['maxcount']) do |order|
-            order.to_xml(r)
+            order.to_shipworks_xml(r)
           end
         end
       end

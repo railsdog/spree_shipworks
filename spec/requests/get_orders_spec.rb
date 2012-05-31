@@ -192,4 +192,26 @@ describe 'GetOrders action' do
       xml.xpath('/ShipWorks/Orders/Order').length.should == 1
     end
   end
+
+  context 'with valid params and a complex order' do
+    let(:action_params) {
+      { 'start' => '2012-01-01T00:00:00', 'maxcount' => '5' }
+    }
+
+    it 'should not crash' do
+      # need to create the admin user before creating the order
+      create_admin_user
+
+      order = Spree::Order.create!
+      order.payments.create!
+
+      SpreeShipworks::Orders.should_receive(:since).
+        with(action_params['start'], action_params['maxcount']).
+        and_yield(order.extend(SpreeShipworks::Xml::Order))
+
+      xml.xpath('/ShipWorks/Error/Code').should_not be_present
+      xml.xpath('/ShipWorks/Orders').should be_present
+      xml.xpath('/ShipWorks/Orders/Order').length.should == 1
+    end
+  end
 end

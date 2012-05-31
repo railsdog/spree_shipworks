@@ -1,7 +1,7 @@
 module SpreeShipworks
   module Xml
     module Address
-      def to_xml(name, context)
+      def to_shipworks_xml(name, context)
         context.element name do |a|
           a.element 'FullName',   self.full_name
           a.element 'Street1',    self.address1
@@ -16,7 +16,7 @@ module SpreeShipworks
     end # Address
 
     module Adjustment
-      def to_xml(context)
+      def to_shipworks_xml(context)
         if self.amount.present?
           context.element 'Total', format("%01.2f", self.amount.abs),
                                     :id => self.id,
@@ -37,7 +37,7 @@ module SpreeShipworks
     end # Adjustment
 
     module Creditcard
-      def to_xml(context)
+      def to_shipworks_xml(context)
         context.element 'CreditCard' do |cc|
           cc.element 'Type',    self.cc_type            if self.cc_type.present?
           cc.element 'Owner',   self.name               if self.name.present?
@@ -53,7 +53,7 @@ module SpreeShipworks
     end # CreditCard
 
     module LineItem
-      def to_xml(context)
+      def to_shipworks_xml(context)
         context.element 'Item' do |i|
           i.element 'ItemID',    self.id                                   if self.id.present?
           i.element 'ProductID', self.product.id                           if self.product.present?
@@ -69,7 +69,7 @@ module SpreeShipworks
     end # LineItem
 
     module Order
-      def to_xml(context)
+      def to_shipworks_xml(context)
         context.element 'Order' do |order_context|
           order_context.element 'OrderNumber',    self.id
           order_context.element 'OrderDate',      self.created_at.to_s(:db).gsub(" ", "T")
@@ -80,30 +80,30 @@ module SpreeShipworks
 
           if self.ship_address
             self.ship_address.extend(Address)
-            self.ship_address.to_xml('ShippingAddress', order_context)
+            self.ship_address.to_shipworks_xml('ShippingAddress', order_context)
           end
 
           if self.bill_address
             self.bill_address.extend(Address)
-            self.bill_address.to_xml('BillingAddress', order_context)
+            self.bill_address.to_shipworks_xml('BillingAddress', order_context)
           end
 
           if self.payments.first.present?
-            self.payments.first.extend(Payment)
-            self.payments.first.to_xml(order_context)
+            payment = self.payments.first.extend(::SpreeShipworks::Xml::Payment)
+            payment.to_shipworks_xml(order_context)
           end
 
           order_context.element 'Items' do |items_context|
             self.line_items.each do |item|
               item.extend(LineItem)
-              item.to_xml(items_context) if item.variant.present?
+              item.to_shipworks_xml(items_context) if item.variant.present?
             end
           end if self.line_items.present?
 
           order_context.element 'Totals' do |totals_context|
             self.adjustments.each do |adjustment|
               adjustment.extend(Adjustment)
-              adjustment.to_xml(totals_context)
+              adjustment.to_shipworks_xml(totals_context)
             end
           end if self.adjustments.present?
         end
@@ -111,12 +111,12 @@ module SpreeShipworks
     end # Order
 
     module Payment
-      def to_xml(context)
+      def to_shipworks_xml(context)
         context.element 'Payment' do |payment_context|
           payment_context.element 'Method', self.payment_source.class.name.split("::").last
           if self.source.present?
             self.source.extend(Creditcard)
-            self.source.to_xml(payment_context)
+            self.source.to_shipworks_xml(payment_context)
           end
         end
       end

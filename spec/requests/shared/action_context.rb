@@ -1,6 +1,8 @@
 shared_context 'for ShipWorks actions' do
   def create_admin_user
-    Spree::User.create!(:email => 'spree@example.com', :password => 'spree123')
+    unless Spree::User.find_by_email('spree@example.com').present?
+      Spree::User.create!(:email => 'spree@example.com', :password => 'spree123')
+    end
   end
 
   def create_normal_user

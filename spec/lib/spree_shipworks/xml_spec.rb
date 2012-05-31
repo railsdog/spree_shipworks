@@ -18,7 +18,7 @@ module SpreeShipworks
           :phone    => '1234567890'
         ).extend(SpreeShipworks::Xml::Address)
       }
-      let(:xml) { address.to_xml('Address', context) }
+      let(:xml) { address.to_shipworks_xml('Address', context) }
 
       it 'should have a Street1 node' do
         xml.xpath('/Address/Street1').text.should == address.address1
@@ -56,7 +56,7 @@ module SpreeShipworks
           :amount => '100.00'
         ).extend(SpreeShipworks::Xml::Adjustment)
       }
-      let(:xml) { adjustment.to_xml(context) }
+      let(:xml) { adjustment.to_shipworks_xml(context) }
 
       it 'should have an id attribute' do
         adjustment.id = 10
@@ -96,7 +96,7 @@ module SpreeShipworks
         c.set_card_type
         c
       }
-      let(:xml) { creditcard.to_xml(context) }
+      let(:xml) { creditcard.to_shipworks_xml(context) }
 
       it 'should have a Type node' do
         xml.xpath('/CreditCard/Type').text.should == 'visa'
@@ -145,7 +145,7 @@ module SpreeShipworks
         i.id = 1
         i
       }
-      let(:xml) { item.to_xml(context) }
+      let(:xml) { item.to_shipworks_xml(context) }
 
       before(:each) do
         item.should_receive(:product).
@@ -195,7 +195,7 @@ module SpreeShipworks
     end
 
     context 'Order' do
-      let(:xml) { order.to_xml(context) }
+      let(:xml) { order.to_shipworks_xml(context) }
 
       before(:each) do
         order.should_receive(:created_at).
@@ -283,7 +283,7 @@ module SpreeShipworks
           :source_attributes => { :year => '2012', :month => '1', :number => '4111111111111111', :verification_value => '123' }
         ).extend(SpreeShipworks::Xml::Payment)
       }
-      let(:xml) { payment.to_xml(context) }
+      let(:xml) { payment.to_shipworks_xml(context) }
 
       it 'should have a Method node' do
         xml.xpath('/Payment/Method').text.should_not be_empty
