@@ -5,7 +5,10 @@ module SpreeShipworks
     def call(params)
       order = Spree::Order.find(params['order'])
 
-      if order.shipments.first.try(:update_attributes, { :tracking => params['tracking'] })
+      shipment = order.shipments.first
+      if shipment.try(:update_attributes, { :tracking => params['tracking'] })
+        shipment.ship
+        
         response do |r|
           r.element 'UpdateSuccess'
         end

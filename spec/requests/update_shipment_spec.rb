@@ -40,6 +40,8 @@ describe 'UpdateShipment action' do
       with(:update_attributes, { :tracking => action_params['tracking'] }).
       and_return(true)
 
+    shipment_scope.should_receive(:ship)
+
     xml.xpath('/ShipWorks/UpdateSuccess').should be_present
   end
 
