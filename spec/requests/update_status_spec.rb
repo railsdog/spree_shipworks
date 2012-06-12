@@ -12,8 +12,14 @@ describe 'UpdateStatus action' do
   let(:action_params) {
     { 'order' => '1', 'status' => 'next' }
   }
-  let(:find_scope) {
-    mock('find_scope')
+  let(:order_scope) {
+    mock('order_scope')
+  }
+  let(:shipment_scope) {
+    mock('shipment_scope')
+  }
+  let(:shipments_scope) {
+    [shipment_scope]
   }
 
   include_context 'for ShipWorks actions'
@@ -22,9 +28,15 @@ describe 'UpdateStatus action' do
   it 'should respond with success' do
     Spree::Order.should_receive(:find).
       with(action_params['order']).
-      and_return(find_scope)
+      and_return(order_scope)
 
-    find_scope.should_receive("#{action_params['status']}!")
+    order_scope.should_receive(:shipments).
+      and_return(shipments_scope)
+
+    shipments_scope.should_receive(:each).
+      and_yield(shipment_scope)
+
+    shipment_scope.should_receive("#{action_params['status']}!")
 
     xml.xpath('/ShipWorks/UpdateSuccess').should be_present
   end
@@ -51,7 +63,7 @@ describe 'UpdateStatus action' do
   it 'should return an error if the state is invalid' do
     Spree::Order.should_receive(:find).
       with(action_params['order']).
-      and_return(find_scope)
+      and_return(order_scope)
 
     klass = Class.new
     machine = StateMachine::Machine.new(klass)
@@ -63,7 +75,13 @@ describe 'UpdateStatus action' do
 
     invalid_transition = StateMachine::InvalidTransition.new(object, machine, action_params['status'].to_sym)
 
-    find_scope.should_receive("#{action_params['status']}!").
+    order_scope.should_receive(:shipments).
+      and_return(shipments_scope)
+
+    shipments_scope.should_receive(:each).
+      and_yield(shipment_scope)
+
+    shipment_scope.should_receive("#{action_params['status']}!").
       and_raise(invalid_transition)
 
     xml.xpath('/ShipWorks/Error').should be_present
@@ -73,9 +91,15 @@ describe 'UpdateStatus action' do
   it 'should return an error if the state can not be used' do
     Spree::Order.should_receive(:find).
       with(action_params['order']).
-      and_return(find_scope)
+      and_return(order_scope)
 
-    find_scope.should_receive("#{action_params['status']}!").
+    order_scope.should_receive(:shipments).
+      and_return(shipments_scope)
+
+    shipments_scope.should_receive(:each).
+      and_yield(shipment_scope)
+
+    shipment_scope.should_receive("#{action_params['status']}!").
       and_raise(NoMethodError)
 
     xml.xpath('/ShipWorks/Error').should be_present
@@ -85,9 +109,15 @@ describe 'UpdateStatus action' do
   it 'should return an error if any other exceptions are caused' do
     Spree::Order.should_receive(:find).
       with(action_params['order']).
-      and_return(find_scope)
+      and_return(order_scope)
 
-    find_scope.should_receive("#{action_params['status']}!").
+    order_scope.should_receive(:shipments).
+      and_return(shipments_scope)
+
+    shipments_scope.should_receive(:each).
+      and_yield(shipment_scope)
+
+    shipment_scope.should_receive("#{action_params['status']}!").
       and_raise(StandardError)
 
     xml.xpath('/ShipWorks/Error').should be_present

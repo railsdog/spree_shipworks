@@ -3,10 +3,14 @@ module SpreeShipworks
     include Dsl
 
     def call(params)
-      Spree::Order.find(params['order']).send("#{params['status']}!".to_sym)
+      if order = Spree::Order.find(params['order'])
+        order.shipments.each do |shipment|
+          shipment.send("#{params['status']}!".to_sym)
+        end
 
-      response do |r|
-        r.element 'UpdateSuccess'
+        response do |r|
+          r.element 'UpdateSuccess'
+        end
       end
 
     rescue ActiveRecord::RecordNotFound
