@@ -29,8 +29,8 @@ describe 'GetStatusCodes action' do
 
   SpreeShipworks::Orders::VALID_STATES.each do |state|
     it "should include #{state} state" do
-      xml.xpath("/ShipWorks/StatusCodes/StatusCode/Code[contains(.,'#{state}')]").text.should == state
-      xml.xpath("/ShipWorks/StatusCodes/StatusCode/Name[contains(.,'#{state.titleize}')]").text.should == state.titleize
+      xml.xpath("/ShipWorks/StatusCodes/StatusCode/Code[contains(.,'#{state}')]").text.should == state.to_s
+      xml.xpath("/ShipWorks/StatusCodes/StatusCode/Name[contains(.,'#{state.to_s.titleize}')]").text.should == state.to_s.titleize
     end
   end
 end

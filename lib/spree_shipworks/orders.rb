@@ -2,7 +2,7 @@ require 'spree_shipworks/xml'
 
 module SpreeShipworks
   class Orders
-    VALID_STATES = %w(complete canceled resumed awaiting_return returned)
+    VALID_STATES = ::Spree::Shipment.state_machine.events.collect(&:name)
 
     # AR::Base#find_each and AR::Base#find_in_batches do not allow support ordering or limiting
     # This method mimicks the behavior of #find_in_batches, but is specific to the needs of the
