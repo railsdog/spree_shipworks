@@ -5,7 +5,7 @@ module SpreeShipworks
     let(:context)   { SpreeShipworks::Dsl::Context.new(document, document) }
     let(:document)  { Nokogiri::XML::Document.parse("<?xml version='1.0' standalone='yes'>") }
     let(:order)     { Spree::Order.new.extend(SpreeShipworks::Xml::Order) }
-    
+
     context 'Address' do
       let(:address) {
         Spree::Address.new(
@@ -316,6 +316,25 @@ module SpreeShipworks
       end
 
       it 'should contain the Totals node' do
+        xml.xpath('/Order/Totals').should be_present
+      end
+    end
+
+    context 'Order with minumum attributes' do
+      let(:xml) { order.to_shipworks_xml(context) }
+
+      before(:each) do
+        order.should_receive(:created_at).
+          and_return(DateTime.now)
+
+        order.should_receive(:updated_at).
+          and_return(DateTime.now)
+      end
+
+      it 'should contain the Totals node' do
+        order.should_receive(:adjustments).
+          and_return([])
+
         xml.xpath('/Order/Totals').should be_present
       end
     end

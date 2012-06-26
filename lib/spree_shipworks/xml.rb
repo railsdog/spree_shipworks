@@ -105,7 +105,7 @@ module SpreeShipworks
               adjustment.extend(Adjustment)
               adjustment.to_shipworks_xml(totals_context)
             end
-          end if self.adjustments.present?
+          end
         end
       end
     end # Order
