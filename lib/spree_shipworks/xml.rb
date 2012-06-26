@@ -61,8 +61,8 @@ module SpreeShipworks
           i.element 'SKU',       self.variant.sku                          if self.variant.present?
           i.element 'Name',      self.product.name                         if self.product.present?
           i.element 'Quantity',  self.quantity                             if self.quantity.present?
-          i.element 'UnitPrice', format("%01.2f", self.variant.price)      if self.variant.present?
-          i.element 'UnitCost',  format("%01.2f", self.variant.cost_price) if self.variant.present?
+          i.element 'UnitPrice', format("%01.2f", self.variant.price)      if self.variant.present? && self.variant.price
+          i.element 'UnitCost',  format("%01.2f", self.variant.cost_price) if self.variant.present? && self.variant.cost_price
           i.element 'Weight',    self.variant.weight || 0.0                if self.variant.present?
         end
       end
