@@ -24,10 +24,10 @@ describe 'GetStatusCodes action' do
   it_should_behave_like "a ShipWorks API action"
 
   it 'the number of status codes should be the same as the number of states on Spree::Order' do
-    xml.xpath('/ShipWorks/StatusCodes/StatusCode').length.should == SpreeShipworks::Orders::VALID_STATES.length
+    xml.xpath('/ShipWorks/StatusCodes/StatusCode').length.should == SpreeShipworks::Orders::VALID_SHIPMENT_STATES.length
   end
 
-  SpreeShipworks::Orders::VALID_STATES.each do |state|
+  SpreeShipworks::Orders::VALID_SHIPMENT_STATES.each do |state|
     it "should include #{state} state" do
       xml.xpath("/ShipWorks/StatusCodes/StatusCode/Code[contains(.,'#{state}')]").text.should == state.to_s
       xml.xpath("/ShipWorks/StatusCodes/StatusCode/Name[contains(.,'#{state.to_s.titleize}')]").text.should == state.to_s.titleize
