@@ -55,15 +55,34 @@ module SpreeShipworks
     module LineItem
       def to_shipworks_xml(context)
         context.element 'Item' do |i|
-          i.element 'ItemID',    self.id                                   if self.id.present?
-          i.element 'ProductID', self.product.id                           if self.product.present?
-          i.element 'Code',      self.variant.id                           if self.variant.present?
-          i.element 'SKU',       self.variant.sku                          if self.variant.present?
-          i.element 'Name',      self.product.name                         if self.product.present?
-          i.element 'Quantity',  self.quantity                             if self.quantity.present?
-          i.element 'UnitPrice', format("%01.2f", self.variant.price)      if self.variant.present? && self.variant.price
-          i.element 'UnitCost',  format("%01.2f", self.variant.cost_price) if self.variant.present? && self.variant.cost_price
-          i.element 'Weight',    self.variant.weight || 0.0                if self.variant.present?
+          i.element 'ItemID',    self.id                                                if self.id.present?
+          i.element 'ProductID', self.product.id                                        if self.product.present?
+          i.element 'Code',      self.variant.sku                                       if self.variant.present?
+          i.element 'SKU',       self.variant.sku                                       if self.variant.present?
+          i.element 'Name',      "#{self.variant.name} (#{self.variant.options_text})"  if self.product.present?
+          i.element 'Quantity',  self.quantity                                          if self.quantity.present?
+          i.element 'UnitPrice', format("%01.2f", self.variant.price)                   if self.variant.present? && self.variant.price
+          i.element 'UnitCost',  format("%01.2f", self.variant.cost_price)              if self.variant.present? && self.variant.cost_price
+          i.element 'Weight',    self.variant.weight || 0.0                             if self.variant.present?
+
+          i.element 'Attributes' do |attributes|
+            self.variant.option_values.each do |option|
+              attributes.element 'Attribute' do |attribute|
+                attribute.element 'AttributeID',  option.option_type_id
+                attribute.element 'Name',         option.option_type.presentation
+                attribute.element 'Value',        option.presentation
+              end
+            end
+
+            self.ad_hoc_option_values.each do |option|
+              attributes.element 'Attribute' do |attribute|
+                attribute.element 'AttributeID',  option.option_type_id
+                attribute.element 'Name',         option.option_type.presentation
+                attribute.element 'Value',        option.presentation
+                attribute.element 'Price',        option.price_modifier
+              end
+            end if respond_to?(:ad_hoc_option_values)
+          end
         end
       end
     end # LineItem

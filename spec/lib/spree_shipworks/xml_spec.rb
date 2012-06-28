@@ -184,6 +184,14 @@ module SpreeShipworks
         item.should_receive(:variant).
           at_least(1).times.
           and_return(variant)
+
+        variant.should_receive(:product).
+          at_least(1).times.
+          and_return(product)
+
+        variant.should_receive(:options_text).
+          at_least(1).times.
+          and_return("test, option")
       end
 
       it 'should have an ItemID node' do
@@ -195,7 +203,7 @@ module SpreeShipworks
       end
 
       it 'should have a Code node' do
-        xml.xpath('/Item/Code').text.should == '3'
+        xml.xpath('/Item/Code').text.should == '1234'
       end
 
       it 'should have a SKU node' do
@@ -203,7 +211,8 @@ module SpreeShipworks
       end
 
       it 'should have a Name node' do
-        xml.xpath('/Item/Name').text.should == 'Test Product'
+        xml.xpath('/Item/Name').text.should =~ /^Test Product/
+        xml.xpath('/Item/Name').text.should =~ /\)$/
       end
 
       it 'should have a Quantity node' do
@@ -220,6 +229,10 @@ module SpreeShipworks
 
       it 'should have a Weight node' do
         xml.xpath('/Item/Weight').text.should == '30.0'
+      end
+
+      it 'should have an Attributes node' do
+        xml.xpath('/Item/Attributes').should be_present
       end
 
       context 'missing weight' do
