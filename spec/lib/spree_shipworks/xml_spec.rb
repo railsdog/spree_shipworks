@@ -172,6 +172,7 @@ module SpreeShipworks
           :quantity => 4
         ).extend(SpreeShipworks::Xml::LineItem)
         i.id = 1
+        i.price = 9
         i
       }
       let(:xml) { item.to_shipworks_xml(context) }
@@ -220,7 +221,7 @@ module SpreeShipworks
       end
 
       it 'should have a UnitPrice node' do
-        xml.xpath('/Item/UnitPrice').text.should == '10.00'
+        xml.xpath('/Item/UnitPrice').text.should == '9.00'
       end
 
       it 'should have a UnitCost node' do
