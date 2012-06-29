@@ -184,7 +184,7 @@ describe 'GetOrders action' do
       order.should_receive(:updated_at).
         and_return(DateTime.now)
 
-      SpreeShipworks::Orders.should_receive(:since).
+      SpreeShipworks::Orders.should_receive(:since_in_batches).
         with(action_params['start'], action_params['maxcount']).
         and_yield(order)
 
@@ -205,7 +205,7 @@ describe 'GetOrders action' do
       order = Spree::Order.create!
       order.payments.create!
 
-      SpreeShipworks::Orders.should_receive(:since).
+      SpreeShipworks::Orders.should_receive(:since_in_batches).
         with(action_params['start'], action_params['maxcount']).
         and_yield(order.extend(SpreeShipworks::Xml::Order))
 

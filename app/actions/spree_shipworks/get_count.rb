@@ -1,3 +1,5 @@
+require 'spree_shipworks/orders'
+
 module SpreeShipworks
   class GetCount
     include Dsl
@@ -5,24 +7,14 @@ module SpreeShipworks
     def call(params)
       if start_date_valid?(params)
         response do |r|
-          r.element "OrderCount", number_of_orders_since(params['start'])
+          r.element "OrderCount", SpreeShipworks::Orders.since(DateTime.parse(params['start'])).count
         end
       else
         error_response("INVALID_DATE_FORMAT", "Unable to determine date format for '#{params['start']}'.")
       end
     end
 
-    private
-
-    def number_of_orders_since(start_date)
-      scope = Spree::Order
-
-      if start_date.present?
-        scope = Spree::Order.where('updated_at > ?', DateTime.parse(start_date))
-      end
-
-      scope.count
-    end
+  private
 
     def start_date_valid?(params)
       result = true
