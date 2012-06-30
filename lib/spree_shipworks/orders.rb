@@ -10,8 +10,8 @@ module SpreeShipworks
                 where(:state => VALID_STATES).
                 order('updated_at asc')
 
-      if start_date
-        scope = scope.where('updated_at > ?', start_date)
+      if start_date && start_date.to_s != ''
+        scope = scope.where('updated_at > ?', DateTime.parse(start_date.to_s))
       end
 
       scope

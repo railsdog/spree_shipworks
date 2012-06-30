@@ -1,33 +1,20 @@
-require 'spree_shipworks/orders'
-
 module SpreeShipworks
   class GetCount
     include Dsl
 
     def call(params)
-      if start_date_valid?(params)
+      begin
         response do |r|
-          r.element "OrderCount", SpreeShipworks::Orders.since(DateTime.parse(params['start'])).count
+          r.element "OrderCount", SpreeShipworks::Orders.since(params['start']).count
         end
-      else
+      rescue ArgumentError
         error_response("INVALID_DATE_FORMAT", "Unable to determine date format for '#{params['start']}'.")
+      rescue => error
+        puts error.inspect
+        Rails.logger.error(error.to_s)
+        Rails.logger.error(error.backtrace.join("\n"))
+        error_response("INTERNAL_SERVER_ERROR", error.to_s)
       end
-    end
-
-  private
-
-    def start_date_valid?(params)
-      result = true
-
-      if params['start'].present?
-        begin
-          DateTime.parse(params['start'])
-        rescue ArgumentError
-          result = false
-        end
-      end
-
-      result
     end
   end
 end

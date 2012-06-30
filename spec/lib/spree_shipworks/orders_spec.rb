@@ -24,10 +24,16 @@ module SpreeShipworks
         end
       end
 
+      context 'with an invalid date argument' do
+        it 'should raise an ArgumentError' do
+          lambda { Orders.since('blargh') }.should raise_error(ArgumentError)
+        end
+      end
+
       context 'with a date argument' do
         it 'should return the correct scope' do
           order_scope.should_receive(:where).
-            with('updated_at > ?', date).
+            with('updated_at > ?', DateTime.parse(date.to_s)).
             and_return(where_date_scope)
 
           Orders.since(date).should == where_date_scope
