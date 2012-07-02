@@ -90,9 +90,10 @@ module SpreeShipworks
     module Order
       def to_shipworks_xml(context)
         context.element 'Order' do |order_context|
-          order_context.element 'OrderNumber',    self.number
-          order_context.element 'OrderDate',      self.created_at.to_s(:db).gsub(" ", "T")
-          order_context.element 'LastModified',   self.updated_at.to_s(:db).gsub(" ", "T")
+          order_context.element 'OrderNumber',    self.number.gsub('R','')
+          #shipworks doesn't hold onto the milliseconds, so we must round up to the next second
+          order_context.element 'OrderDate',      (self.created_at.change(:usec => 0)+1).to_s(:db).gsub(" ", "T")
+          order_context.element 'LastModified',   (self.updated_at.change(:usec => 0)+1).to_s(:db).gsub(" ", "T")
           order_context.element 'ShippingMethod', self.shipping_method.try(:name)
           order_context.element 'StatusCode',     self.state
           order_context.element 'CustomerID',     self.user.try(:id)
