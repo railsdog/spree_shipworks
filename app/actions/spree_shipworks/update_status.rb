@@ -3,7 +3,11 @@ module SpreeShipworks
     include Dsl
 
     def call(params)
-      if order = Spree::Order.find(params['order'])
+      # shipworks stores the order number as an integer so we must pad it back up to 9 chars
+      order = Spree::Order.where(:number => 'R'+params['order'].rjust(9,'0')).first      
+      if order.nil?
+        error_response("NOT_FOUND", "Unable to find an order with ID of '#{params['order']}'.")
+      else
         order.shipments.each do |shipment|
           shipment.send("#{params['status']}!".to_sym)
         end
