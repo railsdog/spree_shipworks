@@ -76,9 +76,9 @@ module SpreeShipworks
 
             self.ad_hoc_option_values.each do |option|
               attributes.element 'Attribute' do |attribute|
-                attribute.element 'AttributeID',  option.option_type_id
-                attribute.element 'Name',         option.option_type.presentation
-                attribute.element 'Value',        option.presentation
+                attribute.element 'AttributeID',  option.ad_hoc_option_type.option_type_id
+                attribute.element 'Name',         option.ad_hoc_option_type.option_type.presentation
+                attribute.element 'Value',        option.option_value.presentation
                 attribute.element 'Price',        option.price_modifier
               end
             end if respond_to?(:ad_hoc_option_values)
