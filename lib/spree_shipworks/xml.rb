@@ -98,10 +98,15 @@ module SpreeShipworks
           order_context.element 'StatusCode',     self.state
           order_context.element 'CustomerID',     self.user.try(:id)
 
-          if self.ship_address
+         
+          if self.bill_address
+            self.bill_address.extend(Address)
+            self.bill_address.to_shipworks_xml('BillingAddress', order_context)
+          else
             self.ship_address.extend(Address)
-            self.ship_address.to_shipworks_xml('ShippingAddress', order_context)
+            self.ship_address.to_shipworks_xml('BillingAddress', order_context)
           end
+
 
           if self.bill_address
             self.bill_address.extend(Address)
