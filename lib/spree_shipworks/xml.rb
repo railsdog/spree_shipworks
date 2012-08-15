@@ -108,9 +108,9 @@ module SpreeShipworks
           end
 
 
-          if self.bill_address
-            self.bill_address.extend(Address)
-            self.bill_address.to_shipworks_xml('BillingAddress', order_context)
+          if self.ship_address
+            self.ship_address.extend(Address)
+            self.ship_address.to_shipworks_xml('ShippingAddress', order_context)
           end
 
           if self.payments.first.present?
