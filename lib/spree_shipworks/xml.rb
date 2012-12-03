@@ -119,7 +119,7 @@ module SpreeShipworks
           }
 
           if payment
-            payment = self.payments.first.extend(::SpreeShipworks::Xml::Payment)
+            payment = payment.first.extend(::SpreeShipworks::Xml::Payment)
             payment.to_shipworks_xml(order_context)
           end
 
