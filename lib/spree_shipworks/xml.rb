@@ -113,7 +113,12 @@ module SpreeShipworks
             self.ship_address.to_shipworks_xml('ShippingAddress', order_context)
           end
 
-          if self.payments.first.present?
+          payment = nil
+          self.payments.each{|p|
+            payment = p if p.source.class == Spree::Creditcard
+          }
+
+          if payment
             payment = self.payments.first.extend(::SpreeShipworks::Xml::Payment)
             payment.to_shipworks_xml(order_context)
           end
