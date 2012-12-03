@@ -102,7 +102,7 @@ module SpreeShipworks
           if self.bill_address
             self.bill_address.extend(Address)
             self.bill_address.to_shipworks_xml('BillingAddress', order_context)
-          else
+          elsif self.ship_address
             self.ship_address.extend(Address)
             self.ship_address.to_shipworks_xml('BillingAddress', order_context)
           end
