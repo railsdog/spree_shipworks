@@ -2,7 +2,7 @@ require 'spree_shipworks/xml'
 
 module SpreeShipworks
   class Orders
-    VALID_STATES          = %w(complete canceled resumed awaiting_return returned)
+    VALID_STATES          = %w(complete canceled resumed awaiting_return returned printed)
     VALID_SHIPMENT_STATES = ::Spree::Shipment.state_machine.events.collect(&:name)
 
     def self.since(start_date = nil)
